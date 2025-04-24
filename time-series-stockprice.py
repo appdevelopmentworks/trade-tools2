@@ -98,7 +98,7 @@ st.caption("コードを入力して予測！")
 
 col1, col2 = st.columns(2)
 with col1:
-    code = mystc.checkTicker(st.text_input("コードを入力", value="4449"))
+    code = st.text_input("コードを入力", value="4449")
     fh = st.text_input("予測ホライズン", value=5)
     selectMthod =st.selectbox("予測方法",options=["モデルを指定する", "ベストモデル"], index=0)
 with col2:
@@ -158,7 +158,8 @@ with col4:
 #モデルの作成ボタン
 if btncreate:
     stus = st.status("進捗状況を確認出来ます!")
-    dfseries = get_stock_series(code, selectcol)
+    ticker = mystc.checkTicker(code)
+    dfseries = get_stock_series(ticker, selectcol)
     st.session_state['stockdata'] = dfseries
     stus.text("V 株価データを取得")
     s.setup(dfseries, fh=int(fh), session_id=123, numeric_imputation_target="mean")
@@ -257,8 +258,10 @@ if btnpred:
     actcdata= data.dropna()
     #実データと被らない日から初めて土日を除く
     predcdata = pred[(data.index[-1] <= pred.index.to_timestamp()) & (pred.index.weekday < 5)]
+    #
+    title = f'{code}  {yf.Ticker(mystc.checkTicker(code)).info["shortName"]}'
     #チャートの描画
-    plt = plt_pred_chart(actcdata, predcdata, code)
+    plt = plt_pred_chart(actcdata, predcdata, title)
     st.pyplot(plt)
     st.write("予測データ")
     st.write(s.pull())
