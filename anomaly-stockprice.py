@@ -47,7 +47,7 @@ st.caption("リーマンショック以降のデータから株価の異常値�
 
 col1, col2 = st.columns(2)
 with col1:
-    ticker = st.text_input("株価コード", "^N225")
+    ticker = mystc.checkTicker(st.text_input("株価コード", "^N225"))
 with col2:
     selectModel = st.selectbox("モデル", options=opm, index=3)
 
@@ -96,7 +96,8 @@ st.markdown(
 btnpred = st.button("異常値検出")
 
 #株価データを取得
-dfstock = get_stock_data(mystc.checkTicker(ticker), chk_select)
+
+dfstock = get_stock_data(ticker, chk_select)
 st.dataframe(dfstock, width=1000, height=200)
 #AnomalyExperimentのセットアップ
 s.setup(dfstock, session_id=123)
@@ -112,5 +113,6 @@ if btnpred:
     s.plot_model(model, plot='tsne', display_format='streamlit')
     stus.text("検出データフレーム作成中...")
     pred = s.predict_model(model, data=dfstock)
+    st.write("異常値検出結果データセット")
     st.dataframe(pred.tail(20), width=1000, height=600)
     stus.success("異常値検出完了")
